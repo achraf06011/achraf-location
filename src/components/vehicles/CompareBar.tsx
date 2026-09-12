@@ -5,7 +5,7 @@ import { Scale3d, X } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import { vehicles } from "@/data/vehicles";
 import Button from "@/components/ui/Button";
-import VehicleArt from "./VehicleArt";
+import VehiclePhoto from "./VehiclePhoto";
 
 export default function CompareBar() {
   const compareList = useTripStore((s) => s.compareList);
@@ -30,7 +30,7 @@ export default function CompareBar() {
                   key={v.id}
                   className="relative h-10 w-10 overflow-hidden rounded-full border-2 border-ink-soft"
                 >
-                  <VehicleArt gradient={v.gradient} silhouette={v.silhouette} id={`bar-${v.id}`} />
+                  <VehiclePhoto src={v.photo} alt={v.name} position={v.photoPosition} gradient={v.gradient} sizes="40px" />
                 </div>
               ))}
               {Array.from({ length: 3 - selected.length }).map((_, i) => (

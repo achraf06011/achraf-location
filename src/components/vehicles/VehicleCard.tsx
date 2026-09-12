@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { Star, Users, Briefcase, Gauge, Scale3d } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
-import VehicleArt from "./VehicleArt";
+import VehiclePhoto from "./VehiclePhoto";
 import Badge from "@/components/ui/Badge";
 import { formatDH } from "@/lib/pricing";
 import { useTripStore } from "@/store/tripStore";
@@ -36,7 +36,13 @@ export default function VehicleCard({ vehicle, index = 0 }: { vehicle: Vehicle; 
               !available && "grayscale opacity-50"
             )}
           >
-            <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id={`card-${vehicle.id}`} />
+            <VehiclePhoto
+              src={vehicle.photo}
+              alt={vehicle.name}
+              position={vehicle.photoPosition}
+              gradient={vehicle.gradient}
+              sizes="(min-width: 1280px) 33vw, (min-width: 640px) 50vw, 100vw"
+            />
           </div>
           <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-ink-soft to-transparent" />
 

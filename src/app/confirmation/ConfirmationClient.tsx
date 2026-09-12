@@ -8,7 +8,7 @@ import { formatDH } from "@/lib/pricing";
 import { formatDateFrLong } from "@/lib/format";
 import Button from "@/components/ui/Button";
 import { getVehicleBySlug } from "@/data/vehicles";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 
 export default function ConfirmationClient() {
   const params = useSearchParams();
@@ -47,7 +47,7 @@ export default function ConfirmationClient() {
       {vehicle && (
         <div className="mt-8 rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
           <div className="h-36 relative">
-            <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id="conf" />
+            <VehiclePhoto src={vehicle.photo} alt={vehicle.name} position={vehicle.photoPosition} gradient={vehicle.gradient} sizes="600px" />
           </div>
           <div className="p-5">
             <div className="flex items-center justify-between">

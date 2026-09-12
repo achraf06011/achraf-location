@@ -27,6 +27,9 @@ export interface Vehicle {
   whyChoose: string[];
   gradient: [string, string];
   silhouette: Silhouette;
+  photo: string;
+  photoPosition?: string;
+  photoCredit: string;
   badge?: "Offre du moment" | "Populaire" | "Nouveau" | "Dernières unités";
   discountPercent?: number;
   unavailableRanges: [string, string][];
@@ -44,7 +47,6 @@ export interface Extra {
   price: number;
   pricingType: ExtraPricingType;
   description: string;
-  emoji: string;
 }
 
 export interface Pack {
@@ -61,7 +63,7 @@ export interface Pack {
 export interface Experience {
   id: string;
   name: string;
-  emoji: string;
+  icon: string;
   subtitle: string;
   description: string;
   presetCategory: Category;

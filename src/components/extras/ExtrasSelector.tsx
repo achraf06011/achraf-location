@@ -8,6 +8,7 @@ import { useTripStore } from "@/store/tripStore";
 import { getPackById } from "@/data/packs";
 import { extraLineTotal, formatDH } from "@/lib/pricing";
 import { cn } from "@/lib/cn";
+import { getIcon } from "@/lib/icons";
 
 export default function ExtrasSelector({ days }: { days: number }) {
   const selectedExtraIds = useTripStore((s) => s.selectedExtraIds);
@@ -41,6 +42,7 @@ export default function ExtrasSelector({ days }: { days: number }) {
           const included = packIncluded.has(extra.id);
           const active = selectedExtraIds.includes(extra.id) || included;
           const lineTotal = extraLineTotal(extra, days);
+          const Icon = getIcon(extra.icon);
 
           return (
             <div
@@ -66,7 +68,9 @@ export default function ExtrasSelector({ days }: { days: number }) {
 
               <div className="flex items-start justify-between gap-3">
                 <div className="flex items-start gap-3">
-                  <span className="text-2xl leading-none">{extra.emoji}</span>
+                  <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-gold/10 text-gold-light">
+                    <Icon size={18} />
+                  </span>
                   <div>
                     <p className="text-sm font-semibold text-paper">{extra.name}</p>
                     <p className="text-xs text-paper/45 mt-1 leading-relaxed">{extra.description}</p>

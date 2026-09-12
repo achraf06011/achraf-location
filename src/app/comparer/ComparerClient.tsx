@@ -3,7 +3,7 @@
 import { Check, Minus, Scale3d, X } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import { useTripStore } from "@/store/tripStore";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import Button from "@/components/ui/Button";
 import { formatDH } from "@/lib/pricing";
 import Reveal from "@/components/ui/Reveal";
@@ -70,7 +70,7 @@ export default function ComparerClient() {
                         <X size={14} />
                       </button>
                       <div className="h-28">
-                        <VehicleArt gradient={v.gradient} silhouette={v.silhouette} id={`cmp-${v.id}`} />
+                        <VehiclePhoto src={v.photo} alt={v.name} position={v.photoPosition} gradient={v.gradient} sizes="300px" />
                       </div>
                       <div className="p-3 text-left">
                         <p className="font-display text-lg text-paper">{v.name}</p>

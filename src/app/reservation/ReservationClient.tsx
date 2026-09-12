@@ -8,7 +8,7 @@ import { useTripStore } from "@/store/tripStore";
 import { useTripSummary } from "@/lib/useTripSummary";
 import { formatDH } from "@/lib/pricing";
 import { formatDateFrLong, LOCATION_LABELS } from "@/lib/format";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import Button from "@/components/ui/Button";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import Reveal from "@/components/ui/Reveal";
@@ -79,7 +79,7 @@ export default function ReservationClient() {
           <Reveal>
             <div className="rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
               <div className="h-40 relative">
-                <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id="res" />
+                <VehiclePhoto src={vehicle.photo} alt={vehicle.name} position={vehicle.photoPosition} gradient={vehicle.gradient} sizes="600px" />
               </div>
               <div className="p-5 flex items-center justify-between">
                 <div>

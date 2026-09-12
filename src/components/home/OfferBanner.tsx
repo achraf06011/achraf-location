@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import Countdown from "@/components/ui/Countdown";
 import Button from "@/components/ui/Button";
 import { formatDH } from "@/lib/pricing";
@@ -19,7 +19,13 @@ export default function OfferBanner() {
         <div className="relative overflow-hidden rounded-[32px] border border-gold/20 bg-gradient-to-br from-ink-soft to-ink grain">
           <div className="grid md:grid-cols-2">
             <div className="relative h-56 md:h-auto">
-              <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id="offer" />
+              <VehiclePhoto
+                src={vehicle.photo}
+                alt={vehicle.name}
+                position={vehicle.photoPosition}
+                gradient={vehicle.gradient}
+                sizes="(min-width: 768px) 50vw, 100vw"
+              />
             </div>
             <div className="p-7 md:p-12 flex flex-col justify-center">
               <span className="inline-flex w-fit items-center gap-2 rounded-full bg-clay/20 border border-clay/40 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-clay-light mb-5">

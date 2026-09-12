@@ -4,7 +4,7 @@ export const experiences: Experience[] = [
   {
     id: "marrakech-weekend",
     name: "Marrakech Weekend",
-    emoji: "🏙️",
+    icon: "Building2",
     subtitle: "Voiture + livraison hôtel",
     description: "Le combo parfait pour explorer la médina, la Palmeraie et Guéliz sans contrainte.",
     presetCategory: "Compacte",
@@ -14,7 +14,7 @@ export const experiences: Experience[] = [
   {
     id: "desert-escape",
     name: "Desert Escape",
-    emoji: "🏜️",
+    icon: "Mountain",
     subtitle: "SUV + accessoires voyage",
     description: "Direction Agafay ou les gorges de l'Atlas avec un SUV taillé pour l'aventure.",
     presetCategory: "SUV",
@@ -24,7 +24,7 @@ export const experiences: Experience[] = [
   {
     id: "wedding-experience",
     name: "Wedding Experience",
-    emoji: "💍",
+    icon: "Heart",
     subtitle: "Voiture décorée + livraison",
     description: "Une berline de prestige, décorée et livrée directement sur le lieu de votre mariage.",
     presetCategory: "Luxe",
@@ -35,7 +35,7 @@ export const experiences: Experience[] = [
   {
     id: "business-trip",
     name: "Business Trip",
-    emoji: "💼",
+    icon: "Briefcase",
     subtitle: "Berline + Wi-Fi + livraison",
     description: "Voyagez efficacement entre rendez-vous, connecté et livré où vous en avez besoin.",
     presetCategory: "Premium",
@@ -46,7 +46,7 @@ export const experiences: Experience[] = [
   {
     id: "family-trip",
     name: "Family Trip",
-    emoji: "👨‍👩‍👧‍👦",
+    icon: "Users",
     subtitle: "SUV + sièges enfants + Wi-Fi",
     description: "Un grand SUV équipé pour voyager confortablement avec toute la famille.",
     presetCategory: "SUV",

@@ -2,18 +2,18 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Check, Wand2 } from "lucide-react";
+import { Cake, Check, Gem, Gift, Heart, Wand2 } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import type { CarPrepChoice } from "@/lib/types";
 import { formatDH } from "@/lib/pricing";
 import { CAR_PREP_PRICES } from "@/lib/useTripSummary";
 import { cn } from "@/lib/cn";
 
-const OCCASIONS: { id: CarPrepChoice["occasion"]; label: string; emoji: string }[] = [
-  { id: "mariage", label: "Mariage", emoji: "💍" },
-  { id: "anniversaire", label: "Anniversaire", emoji: "🎂" },
-  { id: "romantique", label: "Voyage romantique", emoji: "❤️" },
-  { id: "surprise", label: "Surprise", emoji: "🎁" },
+const OCCASIONS: { id: CarPrepChoice["occasion"]; label: string; icon: typeof Gem }[] = [
+  { id: "mariage", label: "Mariage", icon: Gem },
+  { id: "anniversaire", label: "Anniversaire", icon: Cake },
+  { id: "romantique", label: "Voyage romantique", icon: Heart },
+  { id: "surprise", label: "Surprise", icon: Gift },
 ];
 
 const OPTIONS_BY_OCCASION: Record<CarPrepChoice["occasion"], { id: string; label: string }[]> = {
@@ -84,7 +84,7 @@ export default function CarPrepConfigurator() {
                     : "border-paper/10 text-paper/60 hover:border-paper/25"
                 )}
               >
-                <span className="text-xl">{occ.emoji}</span>
+                <occ.icon size={18} />
                 {occ.label}
               </button>
             ))}

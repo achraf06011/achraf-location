@@ -6,7 +6,7 @@ import { useTripStore } from "@/store/tripStore";
 import { getVehicleBySlug } from "@/data/vehicles";
 import { formatDH } from "@/lib/pricing";
 import { formatDateFrLong } from "@/lib/format";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import LoyaltyClub from "@/components/client/LoyaltyClub";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
@@ -16,7 +16,7 @@ export default function EspaceClientClient() {
 
   return (
     <div className="container-edge py-10 md:py-14">
-      <h1 className="font-display text-3xl md:text-4xl text-paper">Bonjour Yassine 👋</h1>
+      <h1 className="font-display text-3xl md:text-4xl text-paper">Bonjour Yassine</h1>
       <p className="text-paper/50 mt-1">Voici un aperçu de votre espace Atlas Drive.</p>
 
       <div className="mt-10 grid gap-8 lg:grid-cols-[1fr_340px]">
@@ -36,7 +36,13 @@ export default function EspaceClientClient() {
                     <div className="grid sm:grid-cols-[140px_1fr]">
                       <div className="h-32 sm:h-full relative">
                         {vehicle && (
-                          <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id={`esp-${booking.id}`} />
+                          <VehiclePhoto
+                            src={vehicle.photo}
+                            alt={vehicle.name}
+                            position={vehicle.photoPosition}
+                            gradient={vehicle.gradient}
+                            sizes="200px"
+                          />
                         )}
                       </div>
                       <div className="p-5">

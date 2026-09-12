@@ -6,7 +6,7 @@ import { useTripSummary } from "@/lib/useTripSummary";
 import { formatDH } from "@/lib/pricing";
 import Button from "@/components/ui/Button";
 import { useTripStore } from "@/store/tripStore";
-import VehicleArt from "@/components/vehicles/VehicleArt";
+import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import Link from "next/link";
 
 export default function TripCartDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -55,7 +55,7 @@ export default function TripCartDrawer({ open, onClose }: { open: boolean; onClo
               {vehicle && (
                 <div className="rounded-2xl border border-paper/10 overflow-hidden">
                   <div className="h-32 relative">
-                    <VehicleArt gradient={vehicle.gradient} silhouette={vehicle.silhouette} id={`cart-${vehicle.id}`} />
+                    <VehiclePhoto src={vehicle.photo} alt={vehicle.name} position={vehicle.photoPosition} gradient={vehicle.gradient} sizes="400px" />
                     <button
                       onClick={() => {
                         selectVehicle(null);

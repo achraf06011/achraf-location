@@ -6,6 +6,7 @@ import { experiences } from "@/data/experiences";
 import { useTripStore } from "@/store/tripStore";
 import SectionHeading from "@/components/ui/SectionHeading";
 import { cn } from "@/lib/cn";
+import { getIcon } from "@/lib/icons";
 
 export default function ExperiencesSection({ full = false }: { full?: boolean }) {
   const router = useRouter();
@@ -27,7 +28,9 @@ export default function ExperiencesSection({ full = false }: { full?: boolean })
       />
 
       <div className="mt-10 grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-        {experiences.map((exp, i) => (
+        {experiences.map((exp, i) => {
+          const Icon = getIcon(exp.icon);
+          return (
           <motion.button
             key={exp.id}
             onClick={() => pick(exp)}
@@ -43,7 +46,9 @@ export default function ExperiencesSection({ full = false }: { full?: boolean })
           >
             <div className="absolute inset-0 bg-ink/40 group-hover:bg-ink/25 transition-colors" />
             <div className="relative z-10">
-              <span className="text-3xl">{exp.emoji}</span>
+              <span className="flex h-11 w-11 items-center justify-center rounded-xl bg-paper/10 text-gold-light">
+                <Icon size={20} />
+              </span>
               <h3 className="mt-3 font-display text-xl text-paper">{exp.name}</h3>
               <p className="text-paper/70 text-sm mt-1">{exp.subtitle}</p>
               {full && <p className="text-paper/55 text-xs mt-2 leading-relaxed">{exp.description}</p>}
@@ -52,7 +57,8 @@ export default function ExperiencesSection({ full = false }: { full?: boolean })
               </span>
             </div>
           </motion.button>
-        ))}
+          );
+        })}
       </div>
     </section>
   );
