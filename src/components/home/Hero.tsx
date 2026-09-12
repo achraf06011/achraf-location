@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import BookingSearch from "@/components/booking/BookingSearch";
+import { vehicles } from "@/data/vehicles";
 
 export default function Hero() {
   return (
@@ -78,7 +79,7 @@ export default function Hero() {
           transition={{ duration: 0.8, delay: 0.6 }}
           className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-paper/50"
         >
-          <Stat value="8" label="véhicules disponibles" />
+          <Stat value={`${vehicles.length}`} label="véhicules disponibles" />
           <Stat value="24/7" label="assistance WhatsApp" />
           <Stat value="4.8/5" label="satisfaction moyenne*" />
           <span className="text-[11px] text-paper/30">*Données de démonstration</span>

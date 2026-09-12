@@ -3,8 +3,21 @@ import VehicleCard from "@/components/vehicles/VehicleCard";
 import SectionHeading from "@/components/ui/SectionHeading";
 import Button from "@/components/ui/Button";
 
+const FEATURED_SLUGS = [
+  "dacia-logan",
+  "peugeot-208",
+  "toyota-corolla",
+  "peugeot-3008",
+  "hyundai-tucson",
+  "bmw-serie-3",
+  "mercedes-classe-c",
+  "porsche-macan",
+];
+
 export default function FeaturedVehicles() {
-  const featured = vehicles.slice(0, 6);
+  const featured = FEATURED_SLUGS.map((slug) => vehicles.find((v) => v.slug === slug)).filter(
+    (v): v is (typeof vehicles)[number] => Boolean(v)
+  );
   return (
     <section className="container-edge py-16 md:py-24">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6">

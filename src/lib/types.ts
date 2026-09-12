@@ -1,8 +1,6 @@
 export type Category = "Économique" | "Compacte" | "SUV" | "Premium" | "Luxe";
 export type Transmission = "Automatique" | "Manuelle";
 export type Fuel = "Essence" | "Diesel" | "Hybride" | "Électrique";
-export type Silhouette = "hatch" | "sedan" | "suv" | "luxury";
-
 export interface PriceTier {
   minDays: number;
   maxDays: number | null;
@@ -26,7 +24,6 @@ export interface Vehicle {
   features: string[];
   whyChoose: string[];
   gradient: [string, string];
-  silhouette: Silhouette;
   photo: string;
   photoPosition?: string;
   photoCredit: string;

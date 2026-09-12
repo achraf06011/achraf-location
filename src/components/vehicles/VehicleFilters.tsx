@@ -16,7 +16,7 @@ export const DEFAULT_FILTERS: FiltersState = {
   categories: [],
   transmissions: [],
   fuels: [],
-  maxPrice: 1200,
+  maxPrice: 1500,
   minSeats: 0,
 };
 
@@ -40,7 +40,7 @@ export default function VehicleFilters({
     filters.transmissions.length > 0 ||
     filters.fuels.length > 0 ||
     filters.minSeats > 0 ||
-    filters.maxPrice < 1200;
+    filters.maxPrice < 1500;
 
   return (
     <div className="rounded-2xl border border-paper/10 bg-ink-soft p-5">
@@ -101,7 +101,7 @@ export default function VehicleFilters({
         <input
           type="range"
           min={200}
-          max={1200}
+          max={1500}
           step={50}
           value={filters.maxPrice}
           onChange={(e) => onChange({ ...filters, maxPrice: Number(e.target.value) })}
