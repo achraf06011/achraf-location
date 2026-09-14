@@ -2,7 +2,7 @@
 
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { Check, Plus, Sparkles } from "lucide-react";
+import { Check, Minus, Plus, Sparkles } from "lucide-react";
 import { extras } from "@/data/extras";
 import { useTripStore } from "@/store/tripStore";
 import { getPackById } from "@/data/packs";
@@ -17,14 +17,12 @@ export default function ExtrasSelector({ days }: { days: number }) {
   const pack = selectedPackId ? getPackById(selectedPackId) : undefined;
   const packIncluded = new Set(pack?.includes ?? []);
 
-  const [flashes, setFlashes] = useState<Record<string, boolean>>({});
+  const [flashes, setFlashes] = useState<Record<string, "add" | "remove" | undefined>>({});
 
   function handleToggle(id: string, isAdding: boolean) {
     toggleExtra(id);
-    if (isAdding) {
-      setFlashes((f) => ({ ...f, [id]: true }));
-      setTimeout(() => setFlashes((f) => ({ ...f, [id]: false })), 700);
-    }
+    setFlashes((f) => ({ ...f, [id]: isAdding ? "add" : "remove" }));
+    setTimeout(() => setFlashes((f) => ({ ...f, [id]: undefined })), 700);
   }
 
   return (
@@ -59,9 +57,13 @@ export default function ExtrasSelector({ days }: { days: number }) {
                     animate={{ opacity: 1, y: -28, scale: 1.1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.6, ease: "easeOut" }}
-                    className="absolute top-2 right-4 text-xs font-semibold text-gold-light pointer-events-none"
+                    className={cn(
+                      "absolute top-2 right-4 text-xs font-semibold pointer-events-none",
+                      flashes[extra.id] === "add" ? "text-gold-light" : "text-clay-light"
+                    )}
                   >
-                    +{formatDH(lineTotal)}
+                    {flashes[extra.id] === "add" ? "+" : "-"}
+                    {formatDH(lineTotal)}
                   </motion.span>
                 )}
               </AnimatePresence>
@@ -91,16 +93,20 @@ export default function ExtrasSelector({ days }: { days: number }) {
                 ) : (
                   <button
                     onClick={() => handleToggle(extra.id, !selectedExtraIds.includes(extra.id))}
+                    aria-pressed={active}
                     className={cn(
-                      "flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
+                      "group/btn flex items-center gap-1 rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors",
                       active
-                        ? "bg-gold text-ink"
+                        ? "bg-gold text-ink hover:bg-clay hover:text-paper active:bg-clay active:text-paper"
                         : "border border-paper/20 text-paper/70 hover:border-gold hover:text-gold-light"
                     )}
                   >
                     {active ? (
                       <>
-                        <Check size={13} /> Ajouté
+                        <Check size={13} className="group-hover/btn:hidden group-active/btn:hidden" />
+                        <Minus size={13} className="hidden group-hover/btn:block group-active/btn:block" />
+                        <span className="group-hover/btn:hidden group-active/btn:hidden">Ajouté</span>
+                        <span className="hidden group-hover/btn:inline group-active/btn:inline">Retirer</span>
                       </>
                     ) : (
                       <>
