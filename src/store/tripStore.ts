@@ -67,13 +67,6 @@ interface TripState {
   confirmBooking: (booking: Omit<ConfirmedBooking, "id" | "createdAt" | "pointsEarned">) => ConfirmedBooking;
 }
 
-const todayISO = () => new Date().toISOString().slice(0, 10);
-const inDays = (n: number) => {
-  const d = new Date();
-  d.setDate(d.getDate() + n);
-  return d.toISOString().slice(0, 10);
-};
-
 export const useTripStore = create<TripState>()(
   persist(
     (set) => ({
@@ -81,8 +74,8 @@ export const useTripStore = create<TripState>()(
       pickupCustom: "",
       dropoffLocation: "aeroport",
       dropoffCustom: "",
-      startDate: inDays(3),
-      endDate: inDays(8),
+      startDate: null,
+      endDate: null,
       startTime: "10:00",
       endTime: "10:00",
 
@@ -176,5 +169,3 @@ export const useTripStore = create<TripState>()(
     }
   )
 );
-
-export const todayHelper = { todayISO, inDays };

@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { SlidersHorizontal } from "lucide-react";
+import { Calendar, SlidersHorizontal } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
 import VehicleCard from "@/components/vehicles/VehicleCard";
 import VehicleFilters, { DEFAULT_FILTERS, applyFilters, type FiltersState } from "@/components/vehicles/VehicleFilters";
@@ -28,6 +28,7 @@ export default function VehiclesPageClient() {
   const startDate = useTripStore((s) => s.startDate);
   const endDate = useTripStore((s) => s.endDate);
   const pickupLocation = useTripStore((s) => s.pickupLocation);
+  const setSearch = useTripStore((s) => s.setSearch);
 
   const filtered = useMemo(() => {
     let result = applyFilters(vehicles, filters);
@@ -41,15 +42,37 @@ export default function VehiclesPageClient() {
 
   return (
     <div className="container-edge py-10 md:py-14">
-      <div className="flex flex-col gap-2 mb-2">
+      <div className="flex flex-col gap-4 mb-2">
         <h1 className="font-display text-3xl md:text-4xl text-paper">Notre flotte</h1>
-        {startDate && endDate && (
-          <p className="text-sm text-paper/50">
-            Recherche : {formatDateFr(startDate)} → {formatDateFr(endDate)} · Récupération à{" "}
-            {LOCATION_LABELS[pickupLocation]} ·{" "}
-            <span className="text-gold-light">{availableCount} véhicules disponibles</span>
-          </p>
-        )}
+
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2.5 rounded-2xl border border-paper/10 bg-ink-soft p-3">
+          <span className="flex items-center gap-2 text-xs font-medium text-paper/50 pl-1 shrink-0">
+            <Calendar size={15} className="text-gold-light" />
+            Vos dates
+          </span>
+          <div className="flex flex-1 flex-col sm:flex-row gap-2">
+            <input
+              type="date"
+              value={startDate ?? ""}
+              onChange={(e) => setSearch({ startDate: e.target.value || null })}
+              className="flex-1 rounded-xl border border-paper/15 bg-ink px-3 py-2 text-sm text-paper outline-none focus:border-gold [color-scheme:dark]"
+              aria-label="Date de début"
+            />
+            <input
+              type="date"
+              value={endDate ?? ""}
+              onChange={(e) => setSearch({ endDate: e.target.value || null })}
+              className="flex-1 rounded-xl border border-paper/15 bg-ink px-3 py-2 text-sm text-paper outline-none focus:border-gold [color-scheme:dark]"
+              aria-label="Date de fin"
+            />
+          </div>
+          {startDate && endDate && (
+            <p className="text-xs text-paper/50 sm:ml-2">
+              {formatDateFr(startDate)} → {formatDateFr(endDate)} · Récupération à {LOCATION_LABELS[pickupLocation]} ·{" "}
+              <span className="text-gold-light">{availableCount} disponibles</span>
+            </p>
+          )}
+        </div>
       </div>
 
       <div className="mt-8 grid gap-8 lg:grid-cols-[260px_1fr]">
