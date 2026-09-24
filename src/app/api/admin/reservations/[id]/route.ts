@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE, isValidAdminToken } from "@/lib/adminAuth";
-import { updateReservationStatus, type ReservationStatus } from "@/lib/reservations";
+import { ReservationConflictError, updateReservationStatus, type ReservationStatus } from "@/lib/reservations";
 
 const VALID_STATUSES: ReservationStatus[] = ["pending", "confirmed", "rejected"];
 
@@ -23,10 +23,18 @@ export async function PATCH(
     return NextResponse.json({ error: "Statut invalide." }, { status: 400 });
   }
 
+  const adminNote = typeof body?.adminNote === "string" ? body.adminNote.trim() || null : undefined;
+
   try {
-    const reservation = await updateReservationStatus(id, status, body?.adminNote);
+    const reservation = await updateReservationStatus(id, status, adminNote);
     return NextResponse.json({ reservation });
   } catch (err) {
+    if (err instanceof ReservationConflictError) {
+      return NextResponse.json(
+        { error: "Impossible : ce véhicule a entre-temps été réservé par un autre client sur ces dates." },
+        { status: 409 }
+      );
+    }
     return NextResponse.json(
       { error: err instanceof Error ? err.message : "Erreur serveur." },
       { status: 500 }

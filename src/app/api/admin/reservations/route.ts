@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import { cookies } from "next/headers";
 import { ADMIN_COOKIE, isValidAdminToken } from "@/lib/adminAuth";
-import { listReservations } from "@/lib/reservations";
+import { listReservations, startOfTodayInCasablanca } from "@/lib/reservations";
+import type { AdminReservation } from "@/lib/reservationTypes";
 
 export async function GET() {
   const cookieStore = await cookies();
@@ -11,7 +12,16 @@ export async function GET() {
   }
 
   try {
-    const reservations = await listReservations();
+    const rows = await listReservations();
+    const since = startOfTodayInCasablanca();
+    const todayByPhone = new Map<string, number>();
+    for (const r of rows) {
+      if (r.createdAt >= since) todayByPhone.set(r.customerPhone, (todayByPhone.get(r.customerPhone) ?? 0) + 1);
+    }
+    const reservations: AdminReservation[] = rows.map((r) => ({
+      ...r,
+      phoneTodayCount: todayByPhone.get(r.customerPhone) ?? 0,
+    }));
     return NextResponse.json({ reservations });
   } catch (err) {
     return NextResponse.json(

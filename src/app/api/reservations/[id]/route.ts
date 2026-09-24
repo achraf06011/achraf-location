@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getReservationById } from "@/lib/reservations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(
   request: Request,
   { params }: { params: Promise<{ id: string }> }

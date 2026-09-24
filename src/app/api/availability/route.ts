@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
 import { getBlockedRangesByVehicle } from "@/lib/reservations";
 
+export const dynamic = "force-dynamic";
+
 export async function GET() {
   try {
     const ranges = await getBlockedRangesByVehicle();

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { shortReservationRef } from "@/lib/reservationTypes";
 import { MessageCircle, Plus, Settings, Eye, Clock } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import { getVehicleBySlug } from "@/data/vehicles";
@@ -115,7 +116,7 @@ function BookingCard({ booking, index }: { booking: ConfirmedBooking; index: num
               )}
               <a
                 href={`https://wa.me/212600000000?text=${encodeURIComponent(
-                  `Bonjour, je vous contacte au sujet de ma réservation ${booking.id} (${booking.vehicleName}).`
+                  `Bonjour, je vous contacte au sujet de ma réservation ${shortReservationRef(booking.id)} (${booking.vehicleName}).`
                 )}`}
                 target="_blank"
                 rel="noopener noreferrer"

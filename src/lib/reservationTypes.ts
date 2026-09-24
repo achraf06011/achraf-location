@@ -43,3 +43,17 @@ export interface NewReservationInput {
   flightInfo?: FlightInfo | null;
   total: number;
 }
+
+export const SUPPORT_PHONE = "+212 (0) 697-601775";
+export const SUPPORT_PHONE_TEL = "+212697601775";
+export const DAILY_RESERVATION_LIMIT = 5;
+
+export interface AdminReservation extends Reservation {
+  /** Reservations submitted today (Casablanca time) with the same phone number. */
+  phoneTodayCount: number;
+}
+
+/** Short, human-friendly reference shown to clients and admins (first 8 chars of the id). */
+export function shortReservationRef(id: string): string {
+  return id.slice(0, 8).toUpperCase();
+}

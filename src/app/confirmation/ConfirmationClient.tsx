@@ -10,6 +10,7 @@ import Button from "@/components/ui/Button";
 import { getVehicleBySlug } from "@/data/vehicles";
 import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import { useReservationStatus } from "@/lib/useReservationStatus";
+import { shortReservationRef } from "@/lib/reservationTypes";
 
 const STATUS_CONFIG = {
   pending: {
@@ -73,7 +74,7 @@ export default function ConfirmationClient() {
 
       <h1 className="font-display text-3xl md:text-4xl text-paper">{status.title}</h1>
       <p className="mt-2 text-paper/55">
-        Référence <span className="text-gold-light">{booking.id}</span> — {status.message}
+        Référence <span className="text-gold-light">{shortReservationRef(booking.id)}</span> — {status.message}
       </p>
 
       {(liveStatus ?? "pending") === "pending" && (

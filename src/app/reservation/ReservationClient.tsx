@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertTriangle, MapPin, Plane, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, Ban, MapPin, Phone, Plane, ShieldCheck, Sparkles } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import { useTripSummary } from "@/lib/useTripSummary";
 import { formatDH } from "@/lib/pricing";
@@ -12,6 +12,8 @@ import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import Button from "@/components/ui/Button";
 import AnimatedNumber from "@/components/ui/AnimatedNumber";
 import Reveal from "@/components/ui/Reveal";
+import { useAvailabilityStore } from "@/store/availabilityStore";
+import { SUPPORT_PHONE, SUPPORT_PHONE_TEL } from "@/lib/reservationTypes";
 
 export default function ReservationClient() {
   const router = useRouter();
@@ -23,6 +25,7 @@ export default function ReservationClient() {
   const [phone, setPhone] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [blocked, setBlocked] = useState(false);
 
   const {
     vehicle,
@@ -53,6 +56,7 @@ export default function ReservationClient() {
     if (!vehicle || !canConfirm || submitting) return;
     setSubmitting(true);
     setSubmitError(null);
+    setBlocked(false);
 
     try {
       const res = await fetch("/api/reservations", {
@@ -77,8 +81,10 @@ export default function ReservationClient() {
         }),
       });
       const data = await res.json();
+      useAvailabilityStore.getState().refresh();
 
       if (!res.ok) {
+        setBlocked(data.error === "blocked");
         setSubmitError(data.message ?? data.error ?? "Une erreur est survenue. Réessayez.");
         return;
       }
@@ -217,7 +223,27 @@ export default function ReservationClient() {
             </div>
           </Reveal>
 
-          {submitError && (
+          {blocked && (
+            <Reveal delay={0.18}>
+              <div className="rounded-2xl border border-clay/40 bg-clay/10 p-5">
+                <p className="flex items-center gap-2 font-semibold text-clay-light">
+                  <Ban size={17} /> Réservations en ligne bloquées pour aujourd&rsquo;hui
+                </p>
+                <p className="mt-2 text-sm text-paper/70">
+                  Ce numéro a déjà effectué 5 demandes de réservation aujourd&rsquo;hui. Merci
+                  d&rsquo;appeler le service de location pour finaliser votre réservation.
+                </p>
+                <a
+                  href={`tel:${SUPPORT_PHONE_TEL}`}
+                  className="mt-4 inline-flex items-center gap-2 rounded-full bg-gold px-5 py-2.5 text-sm font-semibold text-ink hover:brightness-110"
+                >
+                  <Phone size={15} /> {SUPPORT_PHONE}
+                </a>
+              </div>
+            </Reveal>
+          )}
+
+          {submitError && !blocked && (
             <Reveal delay={0.18}>
               <div className="flex items-start gap-2.5 rounded-2xl border border-clay/30 bg-clay/10 p-4 text-sm text-clay-light">
                 <AlertTriangle size={16} className="shrink-0 mt-0.5" />
@@ -247,7 +273,7 @@ export default function ReservationClient() {
               {submitting ? "Envoi en cours…" : "Confirmer ma réservation"}
             </Button>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-paper/35">
-              <ShieldCheck size={13} /> Réservation de démonstration
+              <ShieldCheck size={13} /> Vérifiée par téléphone par notre équipe
             </p>
           </div>
         </div>

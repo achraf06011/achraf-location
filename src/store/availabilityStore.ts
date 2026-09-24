@@ -7,6 +7,7 @@ interface AvailabilityState {
   ranges: Record<string, [string, string][]>;
   status: "idle" | "loading" | "loaded" | "error";
   ensureLoaded: () => void;
+  refresh: () => void;
 }
 
 export const useAvailabilityStore = create<AvailabilityState>((set, get) => ({
@@ -15,8 +16,12 @@ export const useAvailabilityStore = create<AvailabilityState>((set, get) => ({
 
   ensureLoaded: () => {
     if (get().status !== "idle") return;
+    get().refresh();
+  },
+
+  refresh: () => {
     set({ status: "loading" });
-    fetch("/api/availability")
+    fetch("/api/availability", { cache: "no-store" })
       .then((res) => (res.ok ? res.json() : { ranges: {} }))
       .then((data) => set({ ranges: data.ranges ?? {}, status: "loaded" }))
       .catch(() => set({ status: "error" }));

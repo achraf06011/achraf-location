@@ -3,11 +3,18 @@ import {
   countTodayReservationsByPhone,
   createReservation,
   isVehicleFreeServerSide,
+  normalizePhone,
+  ReservationConflictError,
   type NewReservationInput,
 } from "@/lib/reservations";
+import { DAILY_RESERVATION_LIMIT, SUPPORT_PHONE } from "@/lib/reservationTypes";
 
-export const SUPPORT_PHONE = "+212 (0) 697-601775";
-const DAILY_RESERVATION_LIMIT = 5;
+const ISO_DATE = /^\d{4}-\d{2}-\d{2}$/;
+
+const UNAVAILABLE = {
+  error: "unavailable",
+  message: "Ce véhicule vient d'être réservé pour ces dates par un autre client. Choisissez d'autres dates ou un autre véhicule.",
+};
 
 export async function POST(request: Request) {
   const body = await request.json().catch(() => null);
@@ -25,11 +32,15 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Informations de réservation incomplètes." }, { status: 400 });
   }
 
-  const customerPhone = body.customerPhone.trim().replace(/[\s-]/g, "");
+  const customerPhone = normalizePhone(body.customerPhone);
   const customerName = body.customerName.trim();
 
-  if (customerPhone.length < 6 || customerName.length < 2) {
-    return NextResponse.json({ error: "Nom ou téléphone invalide." }, { status: 400 });
+  if (!/^\+?\d{8,15}$/.test(customerPhone) || customerName.length < 2) {
+    return NextResponse.json({ error: "invalid", message: "Nom ou numéro de téléphone invalide." }, { status: 400 });
+  }
+
+  if (!ISO_DATE.test(body.startDate) || !ISO_DATE.test(body.endDate) || body.endDate < body.startDate) {
+    return NextResponse.json({ error: "invalid", message: "Dates de location invalides." }, { status: 400 });
   }
 
   try {
@@ -45,12 +56,8 @@ export async function POST(request: Request) {
       );
     }
 
-    const free = await isVehicleFreeServerSide(body.vehicleSlug, body.startDate, body.endDate);
-    if (!free) {
-      return NextResponse.json(
-        { error: "unavailable", message: "Ce véhicule vient d'être réservé pour ces dates par un autre client." },
-        { status: 409 }
-      );
+    if (!(await isVehicleFreeServerSide(body.vehicleSlug, body.startDate, body.endDate))) {
+      return NextResponse.json(UNAVAILABLE, { status: 409 });
     }
 
     const input: NewReservationInput = {
@@ -72,10 +79,14 @@ export async function POST(request: Request) {
     };
 
     const reservation = await createReservation(input);
-    return NextResponse.json({ reservation }, { status: 201 });
+    return NextResponse.json({ reservation: { id: reservation.id, status: reservation.status } }, { status: 201 });
   } catch (err) {
+    if (err instanceof ReservationConflictError) {
+      return NextResponse.json(UNAVAILABLE, { status: 409 });
+    }
+    console.error("[reservations] create failed", err);
     return NextResponse.json(
-      { error: err instanceof Error ? err.message : "Erreur serveur." },
+      { error: "server", message: "Le service de réservation est momentanément indisponible. Réessayez ou appelez-nous." },
       { status: 500 }
     );
   }
