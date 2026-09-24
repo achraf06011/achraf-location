@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { MapPin, Plane, ShieldCheck, Sparkles } from "lucide-react";
+import { AlertTriangle, MapPin, Plane, ShieldCheck, Sparkles } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import { useTripSummary } from "@/lib/useTripSummary";
 import { formatDH } from "@/lib/pricing";
@@ -21,6 +21,8 @@ export default function ReservationClient() {
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const {
     vehicle,
@@ -44,29 +46,68 @@ export default function ReservationClient() {
     );
   }
 
-  const canConfirm = name.trim().length > 1 && phone.trim().length > 6;
+  const hasDates = Boolean(state.startDate && state.endDate);
+  const canConfirm = name.trim().length > 1 && phone.trim().length > 6 && hasDates;
 
-  function handleConfirm() {
-    if (!vehicle || !canConfirm) return;
-    const booking = confirmBooking({
-      vehicleSlug: vehicle.slug,
-      vehicleName: vehicle.name,
-      startDate: state.startDate ?? "",
-      endDate: state.endDate ?? "",
-      days,
-      pickupLocation: state.pickupLocation,
-      pickupCustom: state.pickupCustom,
-      dropoffLocation: state.dropoffLocation,
-      dropoffCustom: state.dropoffCustom,
-      selectedExtraIds: state.selectedExtraIds,
-      selectedPackId: state.selectedPackId,
-      carPrep: state.carPrep,
-      flightInfo: state.flightInfo,
-      total,
-    });
-    state.resetConfig();
-    state.selectVehicle(null);
-    router.push(`/confirmation?id=${booking.id}`);
+  async function handleConfirm() {
+    if (!vehicle || !canConfirm || submitting) return;
+    setSubmitting(true);
+    setSubmitError(null);
+
+    try {
+      const res = await fetch("/api/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          vehicleSlug: vehicle.slug,
+          vehicleName: vehicle.name,
+          customerName: name.trim(),
+          customerPhone: phone.trim(),
+          startDate: state.startDate,
+          endDate: state.endDate,
+          pickupLocation: state.pickupLocation,
+          pickupCustom: state.pickupCustom,
+          dropoffLocation: state.dropoffLocation,
+          dropoffCustom: state.dropoffCustom,
+          extras: state.selectedExtraIds,
+          packId: state.selectedPackId,
+          carPrep: state.carPrep,
+          flightInfo: state.flightInfo,
+          total,
+        }),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setSubmitError(data.message ?? data.error ?? "Une erreur est survenue. Réessayez.");
+        return;
+      }
+
+      const booking = confirmBooking({
+        id: data.reservation.id,
+        vehicleSlug: vehicle.slug,
+        vehicleName: vehicle.name,
+        startDate: state.startDate ?? "",
+        endDate: state.endDate ?? "",
+        days,
+        pickupLocation: state.pickupLocation,
+        pickupCustom: state.pickupCustom,
+        dropoffLocation: state.dropoffLocation,
+        dropoffCustom: state.dropoffCustom,
+        selectedExtraIds: state.selectedExtraIds,
+        selectedPackId: state.selectedPackId,
+        carPrep: state.carPrep,
+        flightInfo: state.flightInfo,
+        total,
+      });
+      state.resetConfig();
+      state.selectVehicle(null);
+      router.push(`/confirmation?id=${booking.id}`);
+    } catch {
+      setSubmitError("Impossible de contacter le serveur. Vérifiez votre connexion et réessayez.");
+    } finally {
+      setSubmitting(false);
+    }
   }
 
   return (
@@ -163,9 +204,27 @@ export default function ReservationClient() {
                   className="rounded-xl border border-paper/15 bg-ink px-3.5 py-2.5 text-sm text-paper placeholder:text-paper/35 outline-none focus:border-gold"
                 />
               </div>
-              <p className="mt-2 text-[11px] text-paper/35">Démonstration — aucune donnée n&rsquo;est envoyée à un serveur.</p>
+              {!hasDates && (
+                <p className="mt-3 flex items-center gap-1.5 text-xs text-clay-light">
+                  <AlertTriangle size={13} />
+                  Choisissez vos dates sur la fiche du véhicule avant de confirmer.
+                </p>
+              )}
+              <p className="mt-2 text-[11px] text-paper/35">
+                Après validation, notre équipe vous appelle pour vérifier votre demande avant de
+                bloquer le véhicule.
+              </p>
             </div>
           </Reveal>
+
+          {submitError && (
+            <Reveal delay={0.18}>
+              <div className="flex items-start gap-2.5 rounded-2xl border border-clay/30 bg-clay/10 p-4 text-sm text-clay-light">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                {submitError}
+              </div>
+            </Reveal>
+          )}
         </div>
 
         <div className="hidden lg:block">
@@ -184,8 +243,8 @@ export default function ReservationClient() {
                 <AnimatedNumber value={total} suffix=" DH" />
               </span>
             </div>
-            <Button onClick={handleConfirm} size="lg" className="w-full mt-5" disabled={!canConfirm}>
-              Confirmer ma réservation
+            <Button onClick={handleConfirm} size="lg" className="w-full mt-5" disabled={!canConfirm || submitting}>
+              {submitting ? "Envoi en cours…" : "Confirmer ma réservation"}
             </Button>
             <p className="mt-3 flex items-center justify-center gap-1.5 text-[11px] text-paper/35">
               <ShieldCheck size={13} /> Réservation de démonstration
@@ -199,8 +258,8 @@ export default function ReservationClient() {
           <p className="text-xs text-paper/45">Total</p>
           <p className="font-display text-lg text-gold-light">{formatDH(total)}</p>
         </div>
-        <Button onClick={handleConfirm} disabled={!canConfirm}>
-          Confirmer
+        <Button onClick={handleConfirm} disabled={!canConfirm || submitting}>
+          {submitting ? "Envoi…" : "Confirmer"}
         </Button>
       </div>
     </div>

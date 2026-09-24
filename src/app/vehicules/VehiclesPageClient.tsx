@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { Calendar, SlidersHorizontal } from "lucide-react";
 import { vehicles } from "@/data/vehicles";
@@ -9,6 +9,7 @@ import VehicleFilters, { DEFAULT_FILTERS, applyFilters, type FiltersState } from
 import CompareBar from "@/components/vehicles/CompareBar";
 import BottomSheet from "@/components/ui/BottomSheet";
 import { useTripStore } from "@/store/tripStore";
+import { useAvailabilityStore } from "@/store/availabilityStore";
 import { isVehicleAvailable } from "@/lib/availability";
 import { formatDateFr } from "@/lib/format";
 import { LOCATION_LABELS } from "@/lib/format";
@@ -29,6 +30,12 @@ export default function VehiclesPageClient() {
   const endDate = useTripStore((s) => s.endDate);
   const pickupLocation = useTripStore((s) => s.pickupLocation);
   const setSearch = useTripStore((s) => s.setSearch);
+  const liveRangesMap = useAvailabilityStore((s) => s.ranges);
+  const ensureAvailabilityLoaded = useAvailabilityStore((s) => s.ensureLoaded);
+
+  useEffect(() => {
+    ensureAvailabilityLoaded();
+  }, [ensureAvailabilityLoaded]);
 
   const filtered = useMemo(() => {
     let result = applyFilters(vehicles, filters);
@@ -38,7 +45,9 @@ export default function VehiclesPageClient() {
     return result;
   }, [filters, sort]);
 
-  const availableCount = filtered.filter((v) => isVehicleAvailable(v, startDate, endDate)).length;
+  const availableCount = filtered.filter((v) =>
+    isVehicleAvailable(v, startDate, endDate, liveRangesMap[v.slug])
+  ).length;
 
   return (
     <div className="container-edge py-10 md:py-14">

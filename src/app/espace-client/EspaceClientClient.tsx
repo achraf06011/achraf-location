@@ -10,6 +10,9 @@ import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
 import LoyaltyClub from "@/components/client/LoyaltyClub";
 import Button from "@/components/ui/Button";
 import Reveal from "@/components/ui/Reveal";
+import { useReservationStatus } from "@/lib/useReservationStatus";
+import { cn } from "@/lib/cn";
+import type { ConfirmedBooking } from "@/store/tripStore";
 
 export default function EspaceClientClient() {
   const bookings = useTripStore((s) => s.bookings);
@@ -27,73 +30,7 @@ export default function EspaceClientClient() {
               <Button href="/vehicules">Réserver une voiture</Button>
             </div>
           ) : (
-            bookings.map((booking, i) => {
-              const vehicle = getVehicleBySlug(booking.vehicleSlug);
-              const daysUntil = daysFromNow(booking.startDate);
-              return (
-                <Reveal key={booking.id} delay={i * 0.05}>
-                  <div className="rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
-                    <div className="grid sm:grid-cols-[140px_1fr]">
-                      <div className="h-32 sm:h-full relative">
-                        {vehicle && (
-                          <VehiclePhoto
-                            src={vehicle.photo}
-                            alt={vehicle.name}
-                            position={vehicle.photoPosition}
-                            gradient={vehicle.gradient}
-                            sizes="200px"
-                          />
-                        )}
-                      </div>
-                      <div className="p-5">
-                        <div className="flex flex-wrap items-start justify-between gap-2">
-                          <div>
-                            <p className="font-display text-lg text-paper">{booking.vehicleName}</p>
-                            <p className="text-xs text-paper/45">
-                              {formatDateFrLong(booking.startDate)} → {formatDateFrLong(booking.endDate)}
-                            </p>
-                          </div>
-                          <span className="rounded-full bg-emerald-500/15 text-emerald-300 text-xs px-3 py-1 shrink-0">
-                            Confirmée
-                          </span>
-                        </div>
-
-                        {daysUntil !== null && daysUntil >= 0 && (
-                          <p className="mt-3 flex items-center gap-1.5 text-xs text-gold-light">
-                            <Clock size={13} />
-                            {daysUntil === 0
-                              ? "Votre voyage commence aujourd'hui !"
-                              : `Votre prochain voyage commence dans ${daysUntil} jour${daysUntil > 1 ? "s" : ""}.`}
-                          </p>
-                        )}
-
-                        <p className="mt-2 text-sm text-paper/60">Total : {formatDH(booking.total)}</p>
-
-                        <div className="mt-4 flex flex-wrap gap-2">
-                          {vehicle && (
-                            <>
-                              <ActionLink href={`/vehicules/${vehicle.slug}`} icon={Settings} label="Modifier" />
-                              <ActionLink href={`/vehicules/${vehicle.slug}`} icon={Plus} label="Ajouter une option" />
-                            </>
-                          )}
-                          <a
-                            href={`https://wa.me/212600000000?text=${encodeURIComponent(
-                              `Bonjour, je vous contacte au sujet de ma réservation ${booking.id} (${booking.vehicleName}).`
-                            )}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-1.5 rounded-full border border-paper/15 px-3.5 py-1.5 text-xs text-paper/70 hover:border-gold hover:text-gold-light"
-                          >
-                            <MessageCircle size={13} /> WhatsApp
-                          </a>
-                          <ActionLink href={`/confirmation?id=${booking.id}`} icon={Eye} label="Voir les détails" />
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </Reveal>
-              );
-            })
+            bookings.map((booking, i) => <BookingCard key={booking.id} booking={booking} index={i} />)
           )}
         </div>
 
@@ -115,6 +52,83 @@ export default function EspaceClientClient() {
         </div>
       </div>
     </div>
+  );
+}
+
+const STATUS_LABELS = {
+  pending: { label: "En attente de vérification", cls: "bg-gold/15 text-gold-light" },
+  confirmed: { label: "Confirmée", cls: "bg-emerald-500/15 text-emerald-300" },
+  rejected: { label: "Annulée", cls: "bg-clay/20 text-clay-light" },
+} as const;
+
+function BookingCard({ booking, index }: { booking: ConfirmedBooking; index: number }) {
+  const vehicle = getVehicleBySlug(booking.vehicleSlug);
+  const daysUntil = daysFromNow(booking.startDate);
+  const liveStatus = useReservationStatus(booking.id);
+  const status = STATUS_LABELS[liveStatus ?? "pending"];
+
+  return (
+    <Reveal delay={index * 0.05}>
+      <div className="rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
+        <div className="grid sm:grid-cols-[140px_1fr]">
+          <div className="h-32 sm:h-full relative">
+            {vehicle && (
+              <VehiclePhoto
+                src={vehicle.photo}
+                alt={vehicle.name}
+                position={vehicle.photoPosition}
+                gradient={vehicle.gradient}
+                sizes="200px"
+              />
+            )}
+          </div>
+          <div className="p-5">
+            <div className="flex flex-wrap items-start justify-between gap-2">
+              <div>
+                <p className="font-display text-lg text-paper">{booking.vehicleName}</p>
+                <p className="text-xs text-paper/45">
+                  {formatDateFrLong(booking.startDate)} → {formatDateFrLong(booking.endDate)}
+                </p>
+              </div>
+              <span className={cn("rounded-full text-xs px-3 py-1 shrink-0", status.cls)}>
+                {status.label}
+              </span>
+            </div>
+
+            {daysUntil !== null && daysUntil >= 0 && (
+              <p className="mt-3 flex items-center gap-1.5 text-xs text-gold-light">
+                <Clock size={13} />
+                {daysUntil === 0
+                  ? "Votre voyage commence aujourd'hui !"
+                  : `Votre prochain voyage commence dans ${daysUntil} jour${daysUntil > 1 ? "s" : ""}.`}
+              </p>
+            )}
+
+            <p className="mt-2 text-sm text-paper/60">Total : {formatDH(booking.total)}</p>
+
+            <div className="mt-4 flex flex-wrap gap-2">
+              {vehicle && (
+                <>
+                  <ActionLink href={`/vehicules/${vehicle.slug}`} icon={Settings} label="Modifier" />
+                  <ActionLink href={`/vehicules/${vehicle.slug}`} icon={Plus} label="Ajouter une option" />
+                </>
+              )}
+              <a
+                href={`https://wa.me/212600000000?text=${encodeURIComponent(
+                  `Bonjour, je vous contacte au sujet de ma réservation ${booking.id} (${booking.vehicleName}).`
+                )}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 rounded-full border border-paper/15 px-3.5 py-1.5 text-xs text-paper/70 hover:border-gold hover:text-gold-light"
+              >
+                <MessageCircle size={13} /> WhatsApp
+              </a>
+              <ActionLink href={`/confirmation?id=${booking.id}`} icon={Eye} label="Voir les détails" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </Reveal>
   );
 }
 

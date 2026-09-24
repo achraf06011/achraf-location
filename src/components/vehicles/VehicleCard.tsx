@@ -10,6 +10,7 @@ import { formatDH } from "@/lib/pricing";
 import { useTripStore } from "@/store/tripStore";
 import { cn } from "@/lib/cn";
 import { isVehicleAvailable } from "@/lib/availability";
+import { useLiveRangesFor } from "@/store/availabilityStore";
 
 export default function VehicleCard({ vehicle, index = 0 }: { vehicle: Vehicle; index?: number }) {
   const compareList = useTripStore((s) => s.compareList);
@@ -18,7 +19,8 @@ export default function VehicleCard({ vehicle, index = 0 }: { vehicle: Vehicle; 
   const endDate = useTripStore((s) => s.endDate);
   const inCompare = compareList.includes(vehicle.id);
   const startingPrice = vehicle.priceTiers[1]?.pricePerDay ?? vehicle.priceTiers[0].pricePerDay;
-  const available = isVehicleAvailable(vehicle, startDate, endDate);
+  const liveRanges = useLiveRangesFor(vehicle.slug);
+  const available = isVehicleAvailable(vehicle, startDate, endDate, liveRanges);
 
   return (
     <motion.div

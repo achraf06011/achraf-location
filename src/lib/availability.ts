@@ -4,20 +4,28 @@ export function rangesOverlap(aStart: Date, aEnd: Date, bStart: Date, bEnd: Date
   return aStart <= bEnd && bStart <= aEnd;
 }
 
-export function isVehicleAvailable(vehicle: Vehicle, startISO: string | null, endISO: string | null): boolean {
+export function isVehicleAvailable(
+  vehicle: Vehicle,
+  startISO: string | null,
+  endISO: string | null,
+  liveRanges: [string, string][] = []
+): boolean {
   if (!startISO || !endISO) return true;
   const start = new Date(startISO);
   const end = new Date(endISO);
-  return !vehicle.unavailableRanges.some(([s, e]) => rangesOverlap(start, end, new Date(s), new Date(e)));
+  const allRanges = [...vehicle.unavailableRanges, ...liveRanges];
+  return !allRanges.some(([s, e]) => rangesOverlap(start, end, new Date(s), new Date(e)));
 }
 
 export function unavailableDatesForMonth(
   vehicle: Vehicle,
   year: number,
-  month: number
+  month: number,
+  liveRanges: [string, string][] = []
 ): Set<string> {
   const set = new Set<string>();
-  for (const [s, e] of vehicle.unavailableRanges) {
+  const allRanges = [...vehicle.unavailableRanges, ...liveRanges];
+  for (const [s, e] of allRanges) {
     const start = new Date(s);
     const end = new Date(e);
     const cursor = new Date(start);

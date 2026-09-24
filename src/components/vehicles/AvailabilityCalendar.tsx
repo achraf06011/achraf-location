@@ -19,6 +19,7 @@ import { cn } from "@/lib/cn";
 import type { Vehicle } from "@/lib/types";
 import { unavailableDatesForMonth } from "@/lib/availability";
 import { useTripStore } from "@/store/tripStore";
+import { useLiveRangesFor } from "@/store/availabilityStore";
 import { daysBetween } from "@/lib/pricing";
 
 const WEEKDAYS = ["L", "M", "M", "J", "V", "S", "D"];
@@ -28,11 +29,12 @@ export default function AvailabilityCalendar({ vehicle }: { vehicle: Vehicle }) 
   const startDate = useTripStore((s) => s.startDate);
   const endDate = useTripStore((s) => s.endDate);
   const setSearch = useTripStore((s) => s.setSearch);
+  const liveRanges = useLiveRangesFor(vehicle.slug);
 
   const today = startOfDay(new Date());
   const unavailable = useMemo(
-    () => unavailableDatesForMonth(vehicle, viewDate.getFullYear(), viewDate.getMonth()),
-    [vehicle, viewDate]
+    () => unavailableDatesForMonth(vehicle, viewDate.getFullYear(), viewDate.getMonth(), liveRanges),
+    [vehicle, viewDate, liveRanges]
   );
 
   const days = eachDayOfInterval({ start: startOfMonth(viewDate), end: endOfMonth(viewDate) });

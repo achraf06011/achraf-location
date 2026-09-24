@@ -2,19 +2,50 @@
 
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
-import { CheckCircle2, Gem, MessageCircle, User } from "lucide-react";
+import { CheckCircle2, Clock, Gem, MessageCircle, PhoneCall, User, XCircle } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
 import { formatDH } from "@/lib/pricing";
 import { formatDateFrLong } from "@/lib/format";
 import Button from "@/components/ui/Button";
 import { getVehicleBySlug } from "@/data/vehicles";
 import VehiclePhoto from "@/components/vehicles/VehiclePhoto";
+import { useReservationStatus } from "@/lib/useReservationStatus";
+
+const STATUS_CONFIG = {
+  pending: {
+    icon: Clock,
+    iconCls: "bg-gold/15 text-gold-light",
+    title: "Demande de réservation envoyée",
+    badge: "En attente de vérification",
+    badgeCls: "bg-gold/15 text-gold-light",
+    message:
+      "Notre équipe va vous appeler pour vérifier votre demande avant de la confirmer définitivement.",
+  },
+  confirmed: {
+    icon: CheckCircle2,
+    iconCls: "bg-emerald-500/15 text-emerald-400",
+    title: "Réservation confirmée",
+    badge: "Confirmée",
+    badgeCls: "bg-emerald-500/15 text-emerald-300",
+    message: "Votre réservation a été vérifiée et validée par notre équipe.",
+  },
+  rejected: {
+    icon: XCircle,
+    iconCls: "bg-clay/15 text-clay-light",
+    title: "Réservation non confirmée",
+    badge: "Annulée",
+    badgeCls: "bg-clay/20 text-clay-light",
+    message:
+      "Cette demande n'a pas pu être vérifiée. Contactez-nous si vous pensez qu'il s'agit d'une erreur.",
+  },
+} as const;
 
 export default function ConfirmationClient() {
   const params = useSearchParams();
   const id = params.get("id");
   const booking = useTripStore((s) => s.bookings.find((b) => b.id === id));
   const loyaltyPoints = useTripStore((s) => s.loyaltyPoints);
+  const liveStatus = useReservationStatus(id);
 
   if (!booking) {
     return (
@@ -26,6 +57,8 @@ export default function ConfirmationClient() {
   }
 
   const vehicle = getVehicleBySlug(booking.vehicleSlug);
+  const status = STATUS_CONFIG[liveStatus ?? "pending"];
+  const Icon = status.icon;
 
   return (
     <div className="container-edge py-14 md:py-20 max-w-2xl">
@@ -33,26 +66,33 @@ export default function ConfirmationClient() {
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ type: "spring", damping: 16 }}
-        className="flex h-16 w-16 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400 mb-6"
+        className={`flex h-16 w-16 items-center justify-center rounded-full mb-6 ${status.iconCls}`}
       >
-        <CheckCircle2 size={32} />
+        <Icon size={32} />
       </motion.div>
 
-      <h1 className="font-display text-3xl md:text-4xl text-paper">Réservation confirmée</h1>
+      <h1 className="font-display text-3xl md:text-4xl text-paper">{status.title}</h1>
       <p className="mt-2 text-paper/55">
-        Référence <span className="text-gold-light">{booking.id}</span> — un membre de l&rsquo;équipe
-        Atlas Drive vous contactera pour finaliser les détails.
+        Référence <span className="text-gold-light">{booking.id}</span> — {status.message}
       </p>
 
+      {(liveStatus ?? "pending") === "pending" && (
+        <div className="mt-4 flex items-start gap-2.5 rounded-2xl border border-gold/20 bg-gold/5 p-4 text-sm text-paper/70">
+          <PhoneCall size={16} className="text-gold-light shrink-0 mt-0.5" />
+          Un conseiller Atlas Drive va appeler le numéro que vous avez indiqué pour vérifier votre
+          identité avant de bloquer le véhicule à votre nom.
+        </div>
+      )}
+
       {vehicle && (
-        <div className="mt-8 rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
+        <div className="mt-6 rounded-2xl border border-paper/10 bg-ink-soft overflow-hidden">
           <div className="h-36 relative">
             <VehiclePhoto src={vehicle.photo} alt={vehicle.name} position={vehicle.photoPosition} gradient={vehicle.gradient} sizes="600px" />
           </div>
           <div className="p-5">
             <div className="flex items-center justify-between">
               <p className="font-display text-xl text-paper">{booking.vehicleName}</p>
-              <span className="rounded-full bg-emerald-500/15 text-emerald-300 text-xs px-3 py-1">Confirmée</span>
+              <span className={`rounded-full text-xs px-3 py-1 ${status.badgeCls}`}>{status.badge}</span>
             </div>
             <p className="mt-1 text-sm text-paper/50">
               {formatDateFrLong(booking.startDate)} → {formatDateFrLong(booking.endDate)} · {booking.days} jour

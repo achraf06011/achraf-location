@@ -64,7 +64,7 @@ interface TripState {
   toggleCompare: (vehicleId: string) => void;
   clearCompare: () => void;
   resetConfig: () => void;
-  confirmBooking: (booking: Omit<ConfirmedBooking, "id" | "createdAt" | "pointsEarned">) => ConfirmedBooking;
+  confirmBooking: (booking: Omit<ConfirmedBooking, "createdAt" | "pointsEarned">) => ConfirmedBooking;
 }
 
 export const useTripStore = create<TripState>()(
@@ -135,7 +135,6 @@ export const useTripStore = create<TripState>()(
         const points = Math.round(booking.total * 0.1);
         const confirmed: ConfirmedBooking = {
           ...booking,
-          id: `AD-${Math.floor(100000 + Math.random() * 900000)}`,
           createdAt: new Date().toISOString(),
           pointsEarned: points,
         };
