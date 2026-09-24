@@ -17,7 +17,7 @@ export default function Navbar() {
   const activeVehicleSlug = useTripStore((s) => s.activeVehicleSlug);
   const extrasCount = useTripStore((s) => s.selectedExtraIds.length);
 
-  const itemCount = (activeVehicleSlug ? 1 : 0) + extrasCount;
+  const itemCount = activeVehicleSlug ? 1 + extrasCount : 0;
 
   return (
     <>
