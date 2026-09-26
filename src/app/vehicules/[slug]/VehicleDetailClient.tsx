@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useEffect } from "react";
 import { ChevronLeft, Star, Users, Briefcase, Gauge, Fuel as FuelIcon, Calendar as CalendarIcon, CheckCircle2 } from "lucide-react";
 import type { Vehicle } from "@/lib/types";
 import Badge from "@/components/ui/Badge";
@@ -20,10 +21,16 @@ import { daysBetween } from "@/lib/pricing";
 export default function VehicleDetailClient({ vehicle }: { vehicle: Vehicle }) {
   const startDate = useTripStore((s) => s.startDate);
   const endDate = useTripStore((s) => s.endDate);
+  const enterVehicleConfig = useTripStore((s) => s.enterVehicleConfig);
   const days = Math.max(
     daysBetween(startDate ? new Date(startDate) : null, endDate ? new Date(endDate) : null),
     1
   );
+
+  useEffect(() => {
+    enterVehicleConfig(vehicle.slug);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vehicle.slug]);
 
   return (
     <div className="container-edge py-8 md:py-12 pb-28 md:pb-16">

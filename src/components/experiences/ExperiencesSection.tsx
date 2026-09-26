@@ -10,12 +10,10 @@ import { getIcon } from "@/lib/icons";
 
 export default function ExperiencesSection({ full = false }: { full?: boolean }) {
   const router = useRouter();
-  const setExtras = useTripStore((s) => s.setExtras);
-  const selectPack = useTripStore((s) => s.selectPack);
+  const presetForExperience = useTripStore((s) => s.presetForExperience);
 
   function pick(exp: (typeof experiences)[number]) {
-    setExtras(exp.presetExtraIds);
-    selectPack(exp.presetPackId ?? null);
+    presetForExperience(exp.presetExtraIds, exp.presetPackId ?? null);
     router.push(`/vehicules?category=${encodeURIComponent(exp.presetCategory)}`);
   }
 
