@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { MessageCircle, X, ChevronLeft, Send, Car, Coins, CalendarCheck, Plane, Heart } from "lucide-react";
 import { useTripStore } from "@/store/tripStore";
+import { useUIStore } from "@/store/uiStore";
 import { useTripSummary } from "@/lib/useTripSummary";
 import { formatDateFr, LOCATION_LABELS } from "@/lib/format";
 import { formatDH } from "@/lib/pricing";
@@ -24,6 +25,7 @@ const TOPICS: { id: Topic; label: string; icon: React.ElementType }[] = [
 export default function WhatsAppAssistant() {
   const [open, setOpen] = useState(false);
   const [topic, setTopic] = useState<Topic | null>(null);
+  const cartOpen = useUIStore((s) => s.cartOpen);
   const summary = useTripSummary();
   const state = useTripStore();
 
@@ -47,20 +49,22 @@ export default function WhatsAppAssistant() {
 
   return (
     <>
-      <motion.button
-        onClick={() => setOpen(true)}
-        aria-label="Besoin d'aide sur WhatsApp"
-        className="fixed bottom-24 right-5 z-[90] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-ink shadow-[0_10px_30px_-8px_rgba(37,211,102,0.7)] md:bottom-5"
-        whileHover={{ scale: 1.08 }}
-        whileTap={{ scale: 0.94 }}
-        animate={{ y: [0, -4, 0] }}
-        transition={{ y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" } }}
-      >
-        <MessageCircle size={26} />
-      </motion.button>
+      {!cartOpen && (
+        <motion.button
+          onClick={() => setOpen(true)}
+          aria-label="Besoin d'aide sur WhatsApp"
+          className="fixed bottom-24 right-5 z-[90] flex h-14 w-14 items-center justify-center rounded-full bg-[#25D366] text-ink shadow-[0_10px_30px_-8px_rgba(37,211,102,0.7)] md:bottom-5"
+          whileHover={{ scale: 1.08 }}
+          whileTap={{ scale: 0.94 }}
+          animate={{ y: [0, -4, 0] }}
+          transition={{ y: { duration: 2.4, repeat: Infinity, ease: "easeInOut" } }}
+        >
+          <MessageCircle size={26} />
+        </motion.button>
+      )}
 
       <AnimatePresence>
-        {open && (
+        {open && !cartOpen && (
           <>
             <motion.div
               initial={{ opacity: 0 }}
