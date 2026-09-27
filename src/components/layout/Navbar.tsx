@@ -15,9 +15,8 @@ export default function Navbar() {
   const setCartOpen = useUIStore((s) => s.setCartOpen);
   const cartOpen = useUIStore((s) => s.cartOpen);
   const activeVehicleSlug = useTripStore((s) => s.activeVehicleSlug);
-  const extrasCount = useTripStore((s) => s.selectedExtraIds.length);
 
-  const itemCount = activeVehicleSlug ? 1 + extrasCount : 0;
+  const itemCount = activeVehicleSlug ? 1 : 0;
 
   return (
     <>
